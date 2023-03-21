@@ -1,37 +1,32 @@
 class SignupsController < ApplicationController
   before_action :set_signup, only: [:show, :update, :destroy]
-  rescue_with ActiveRecord::RecordInvalid, with: :invalid_entry
+  rescue_from ActiveRecord::RecordInvalid, with: :invalid_entry
 
   # GET /signups
   def index
-    @signups = Signup.all
+    signups = Signup.all
 
-    render json: @signups
+    render json: signups
   end
 
   # GET /signups/1
   def show
-    render json: @signup
+    signup=set_signup
+    render json: signup
   end
 
   # POST /signups
   def create
-    @signup = Signup.new(signup_params)
-
-    if @signup.save
-      render json: @signup.activity, status: :created
-    else
-      render json: @signup.errors, status: :unprocessable_entity
-    end
+    signup = Signup.create!(signup_params)
+      render json: signup.activity, status: :created
   end
 
   # PATCH/PUT /signups/1
   def update
-    if @signup.update(signup_params)
-      render json: @signup
-    else
-      render json: @signup.errors, status: :unprocessable_entity
-    end
+    signup=set_signup
+    signup.update!(signup_params)
+    render json: signup
+
   end
 
   # DELETE /signups/1
@@ -51,6 +46,6 @@ class SignupsController < ApplicationController
     end
 
     def invalid_entry(invalid)
-      render json: {errors: invalid.errors }
+      render json: {errors: invalid.record.errors.full_messages }, status: :unprocessable_entity
     end
 end

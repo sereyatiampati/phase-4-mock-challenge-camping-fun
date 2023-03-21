@@ -2,6 +2,7 @@ class CampersController < ApplicationController
   before_action :set_camper, only: [:show, :update, :destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
+  rescue_from ActiveRecord::RecordInvalid, with: :invalid_entry
 
   # GET /campers
   def index
@@ -17,22 +18,19 @@ class CampersController < ApplicationController
 
   # POST /campers
   def create
-    @camper = Camper.new(camper_params)
+    @camper = Camper.create!(camper_params)
 
-    if @camper.save
-      render json: @camper, status: :created, location: @camper
-    else
-      render json: @camper.errors, status: :unprocessable_entity
-    end
+      render json: @camper, status: :created
+
   end
 
   # PATCH/PUT /campers/1
   def update
-    if @camper.update(camper_params)
-      render json: @camper
-    else
-      render json: @camper.errors, status: :unprocessable_entity
-    end
+
+   camper= set_camper
+   camper.update!(camper_params)
+      render json: @camper, status: :ok
+
   end
 
   # DELETE /campers/1
@@ -53,5 +51,9 @@ class CampersController < ApplicationController
 
     def render_not_found
       render json: {error: "Camper not found"}, status: :not_found
+    end
+
+    def invalid_entry(invalid)
+      render json: {errors: invalid.record.errors.full_messages}, status: :unprocessable_entity
     end
 end
