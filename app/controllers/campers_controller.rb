@@ -13,7 +13,7 @@ class CampersController < ApplicationController
 
   # GET /campers/1
   def show
-    render json: @camper
+    render json: @camper, serializer: EachCamperSerializer
   end
 
   # POST /campers
